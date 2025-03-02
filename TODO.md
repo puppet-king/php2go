@@ -6,7 +6,7 @@
 - [x] array() 创建数组。
 - [x] array_change_key_case() 把数组中所有键更改为小写或大写。
 - [x] array_chunk() 把一个数组分割为新的数组块。
-- [ ] array_column()  返回输入数组中某个单一列的值。
+- [x] array_column()  返回输入数组中某个单一列的值。
 - [ ] array_combine() 通过合并两个数组来创建一个新数组。
 - [ ] array_count_values()  用于统计数组中所有值出现的次数。
 - [ ] array_diff()  比较数组，返回差集（只比较键值）。
@@ -158,7 +158,7 @@
 - [ ] chroot()  改变根目录。
 - [ ] closedir()  关闭目录句柄。
 - [ ] dir() 返回 Directory 类的实例。
-- [ ] getcwd()  返回当前工作目录。
+- [x] getcwd()  返回当前工作目录。
 - [ ] opendir() 打开目录句柄。
 - [ ] readdir() 返回目录句柄中的条目。
 - [ ] rewinddir() 重置目录句柄。
@@ -210,13 +210,13 @@
 - [ ] ftruncate() 将文件截断到指定的长度。
 - [ ] fwrite()  写入文件。
 - [ ] glob()  返回一个包含匹配指定模式的文件名/目录的数组。
-- [ ] is_dir()  判断指定的文件名是否是一个目录。
+- [x] is_dir()  判断指定的文件名是否是一个目录。
 - [ ] is_executable() 判断文件是否可执行。
-- [ ] is_file() 判断指定文件是否为常规的文件。
-- [ ] is_link() 判断指定的文件是否是连接。
-- [ ] is_readable() 判断文件是否可读。
+- [x] is_file() 判断指定文件是否为常规的文件。
+- [x] is_link() 判断指定的文件是否是连接。
+- [x] is_readable() 判断文件是否可读。
 - [ ] is_uploaded_file()  判断文件是否是通过 HTTP POST 上传的。
-- [ ] is_writable() 判断文件是否可写。
+- [x] is_writable() 判断文件是否可写。
 - [ ] is_writeable()  is_writable() 的别名。
 - [ ] link()  创建一个硬连接。
 - [ ] linkinfo()  返回有关一个硬连接的信息。

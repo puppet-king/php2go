@@ -1,8 +1,14 @@
 package php2go
 
 import (
+	"os"
+	"path/filepath"
 	"reflect"
+	"runtime"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestArray(t *testing.T) {
@@ -128,23 +134,23 @@ func TestArrayColumn(t *testing.T) {
 	tests := []testCase[any]{
 		{
 			name: "Test with column_key exist", args: args[any]{
-				input: []map[string]interface{}{
-					{"id": 1, "name": "Alice", "age": 30},
-					{"id": 2, "name": "Bob", "age": 25},
-				},
-				columnKey: "name",
+			input: []map[string]interface{}{
+				{"id": 1, "name": "Alice", "age": 30},
+				{"id": 2, "name": "Bob", "age": 25},
 			},
+			columnKey: "name",
+		},
 			want:    []any{"Alice", "Bob"},
 			wantErr: false,
 		},
 		{
 			name: "Test with column_key not exist", args: args[any]{
-				input: []map[string]interface{}{
-					{"id": 1, "name": "Alice", "age": 30},
-					{"id": 2, "name": "Bob", "age": 25},
-				},
-				columnKey: "cc",
+			input: []map[string]interface{}{
+				{"id": 1, "name": "Alice", "age": 30},
+				{"id": 2, "name": "Bob", "age": 25},
 			},
+			columnKey: "cc",
+		},
 			want:    nil,
 			wantErr: true,
 		},
@@ -182,14 +188,14 @@ func TestArrayColumnByIndexKey(t *testing.T) {
 	tests := []testCase[any]{
 		{
 			name: "Test with columnKey and indexKey", args: args[any]{
-				input: []map[string]interface{}{
-					{"id": 1, "name": "Alice", "age": 30},
-					{"id": 2, "name": "Bob", "age": 25},
-					{"id": 3, "name": "Charlie", "age": 30},
-				},
-				columnKey: "name",
-				indexKey:  &ageKey,
+			input: []map[string]interface{}{
+				{"id": 1, "name": "Alice", "age": 30},
+				{"id": 2, "name": "Bob", "age": 25},
+				{"id": 3, "name": "Charlie", "age": 30},
 			},
+			columnKey: "name",
+			indexKey:  &ageKey,
+		},
 			want: map[string][]any{
 				"30": {"Alice", "Charlie"},
 				"25": {"Bob"},
@@ -247,4 +253,137 @@ func TestArrayColumnByIndexKey(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGetcwd(t *testing.T) {
+	dir, err := Getcwd()
+
+	// 断言错误为 nil
+	require.NoError(t, err)
+
+	// 断言返回的目录不为空
+	assert.NotEmpty(t, dir)
+}
+
+func TestIsDir(t *testing.T) {
+	// 创建临时目录
+	tempDir, err := os.MkdirTemp("", "test_dir")
+	assert.NoError(t, err)
+	defer os.RemoveAll(tempDir)
+
+	// 测试目录存在且是目录
+	isDir := IsDir(tempDir)
+	assert.True(t, isDir)
+
+	// 测试文件不是目录
+	tempFile := filepath.Join(tempDir, "test_file.txt")
+	_, err = os.Create(tempFile)
+	assert.NoError(t, err)
+
+	isDir = IsDir(tempFile)
+	assert.False(t, isDir)
+
+	// 测试不存在的路径
+	nonExistentPath := filepath.Join(tempDir, "non_existent")
+	isDir = IsDir(nonExistentPath)
+	assert.False(t, isDir)
+}
+
+func TestIsFile(t *testing.T) {
+	// 创建临时目录
+	tempDir, err := os.MkdirTemp("", "test_dir")
+	assert.NoError(t, err)
+	defer os.RemoveAll(tempDir)
+
+	// 测试目录存在且是目录
+	isDir := IsFile(tempDir)
+	assert.False(t, isDir)
+
+	// 测试文件不是目录
+	tempFile := filepath.Join(tempDir, "test_file.txt")
+	_, err = os.Create(tempFile)
+	assert.NoError(t, err)
+
+	isDir = IsFile(tempFile)
+	assert.True(t, isDir)
+
+	// 测试不存在的路径
+	nonExistentPath := filepath.Join(tempDir, "non_existent")
+	isDir = IsFile(nonExistentPath)
+	assert.False(t, isDir)
+}
+
+func TestIsLink(t *testing.T) {
+	// 跳过 Windows 上的符号链接测试
+	if runtime.GOOS == "windows" {
+		t.Skip("Windows 上普通用户无法创建符号链接，需要管理员权限")
+	}
+
+	// 测试存在的链接
+	linkPath := "test_link"
+	err := os.Symlink("target", linkPath)
+	assert.NoError(t, err)
+	defer os.Remove(linkPath)
+
+	assert.True(t, IsLink(linkPath))
+
+	// 测试不存在的路径
+	nonExistentPath := "non_existent_path"
+	assert.False(t, IsLink(nonExistentPath))
+
+	// 测试普通文件
+	filePath := "test_file"
+	err = os.WriteFile(filePath, []byte("test"), 0644)
+	assert.NoError(t, err)
+	defer os.Remove(filePath)
+
+	assert.False(t, IsLink(filePath))
+}
+
+func TestIsReadable(t *testing.T) {
+	// 创建临时目录
+	tempDir, err := os.MkdirTemp("", "test_dir")
+	assert.NoError(t, err)
+	defer os.RemoveAll(tempDir)
+
+	// 测试目录存在且是目录
+	isDir := IsReadable(tempDir)
+	assert.True(t, isDir)
+
+	// 测试文件不是目录
+	tempFile := filepath.Join(tempDir, "test_file.txt")
+	_, err = os.Create(tempFile)
+	assert.NoError(t, err)
+
+	isDir = IsReadable(tempFile)
+	assert.True(t, isDir)
+
+	// 测试不存在的路径
+	nonExistentPath := filepath.Join(tempDir, "non_existent")
+	isDir = IsReadable(nonExistentPath)
+	assert.False(t, isDir)
+}
+
+func TestIsWritable(t *testing.T) {
+	// 创建临时目录
+	tempDir, err := os.MkdirTemp("", "test_dir")
+	assert.NoError(t, err)
+	defer os.RemoveAll(tempDir)
+
+	// 测试目录存在且是目录
+	isDir := IsWritable(tempDir)
+	assert.False(t, isDir)
+
+	// 测试文件不是目录
+	tempFile := filepath.Join(tempDir, "test_file.txt")
+	_, err = os.Create(tempFile)
+	assert.NoError(t, err)
+
+	isDir = IsWritable(tempFile)
+	assert.True(t, isDir)
+
+	// 测试不存在的路径
+	nonExistentPath := filepath.Join(tempDir, "non_existent")
+	isDir = IsWritable(nonExistentPath)
+	assert.False(t, isDir)
 }

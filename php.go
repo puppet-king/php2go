@@ -2,6 +2,7 @@ package php2go
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -95,4 +96,61 @@ func ArrayColumnByIndexKey[T any](input []map[string]T, columnKey string, indexK
 	}
 
 	return result, nil
+}
+
+// Getcwd  返回当前工作目录
+func Getcwd() (string, error) {
+	dir, err := os.Getwd()
+	return dir, err
+}
+
+// IsDir 判断给定路径是否为目录
+func IsDir(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false // 可能是不存在或其他错误
+	}
+	return info.IsDir()
+}
+
+// IsFile 判断路径是不是普通文件
+func IsFile(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false // 可能是不存在或其他错误
+	}
+
+	return info.Mode().IsRegular() // 判断是否为普通文件
+}
+
+// IsLink 判断路径是否是符号链接
+func IsLink(path string) bool {
+	info, err := os.Lstat(path)
+	if err != nil {
+		return false // 可能是不存在或其他错误
+	}
+
+	return info.Mode()&os.ModeSymlink != 0 // 判断是否为符号链接
+}
+
+// IsReadable 检查文件或目录是否可读
+func IsReadable(filename string) bool {
+	file, err := os.Open(filename)
+	if err != nil {
+		return false
+	}
+
+	file.Close()
+	return true
+}
+
+// IsWritable 检查文件或目录是否可写
+func IsWritable(filename string) bool {
+	file, err := os.OpenFile(filename, os.O_WRONLY, 0644)
+	if err != nil {
+		return false
+	}
+
+	file.Close()
+	return true
 }
